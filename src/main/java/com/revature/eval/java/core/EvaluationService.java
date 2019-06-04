@@ -1,8 +1,15 @@
 package com.revature.eval.java.core;
 
 import java.time.temporal.Temporal;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public class EvaluationService {
 
@@ -14,8 +21,12 @@ public class EvaluationService {
 	 * @return
 	 */
 	public String reverse(String string) {
-		// TODO Write an implementation for this method declaration
-		return null;
+		String[] arr = string.split("(?!^)");
+		String output = "";
+		for (int i = arr.length - 1; i >= 0; i--) {
+			output += arr[i];
+		}
+		return output;
 	}
 
 	/**
@@ -27,8 +38,14 @@ public class EvaluationService {
 	 * @return
 	 */
 	public String acronym(String phrase) {
-		// TODO Write an implementation for this method declaration
-		return null;
+		String[] acr = phrase.split("[-\\s]");
+		String output = "";
+
+		for (int i = 0; i < acr.length; i++) {
+			char firstChar = acr[i].charAt(0);
+			output += firstChar;
+		}
+		return output.toUpperCase();
 	}
 
 	/**
@@ -81,17 +98,21 @@ public class EvaluationService {
 		}
 
 		public boolean isEquilateral() {
-			// TODO Write an implementation for this method declaration
+			if (getSideOne() == getSideTwo() && (getSideOne() == getSideThree())) {
+				return true;
+			}
 			return false;
 		}
 
 		public boolean isIsosceles() {
-			// TODO Write an implementation for this method declaration
+			if (getSideOne() == getSideTwo() || getSideOne() == getSideThree() || getSideTwo() == getSideThree())
+				return true;
 			return false;
 		}
 
 		public boolean isScalene() {
-			// TODO Write an implementation for this method declaration
+			if (getSideOne() != getSideTwo() && getSideOne() != getSideThree() && getSideTwo() != getSideThree())
+				return true;
 			return false;
 		}
 
@@ -113,8 +134,29 @@ public class EvaluationService {
 	 * @return
 	 */
 	public int getScrabbleScore(String string) {
-		// TODO Write an implementation for this method declaration
-		return 0;
+		String[] input = string.toUpperCase().split("");
+		int count = 0;
+		Set<String> onePoint = new HashSet<String>(Arrays.asList("A", "E", "I", "O", "U", "L", "N", "R", "S", "T"));
+		Set<String> threePoints = new HashSet<String>(Arrays.asList("B", "C", "M", "P"));
+		Set<String> fourPoints = new HashSet<String>(Arrays.asList("F", "H", "V", "W", "Y"));
+
+		for (int i = 0; i < input.length; i++) {
+			if (onePoint.contains(input[i]))
+				count += 1;
+			else if (threePoints.contains(input[i]))
+				count += 3;
+			else if (fourPoints.contains(input[i]))
+				count += 4;
+			else if ("G".equals(input[i]))
+				count += 2;
+			else if ("K".equals(input[i]))
+				count += 5;
+			else if ("J".equals(input[i]) || "X".equals(input[i]))
+				count += 8;
+			else if ("Q".equals(input[i]) || "Z".equals(input[i]))
+				count += 10;
+		}
+		return count;
 	}
 
 	/**
@@ -149,8 +191,12 @@ public class EvaluationService {
 	 * NANP-countries, only 1 is considered a valid country code.
 	 */
 	public String cleanPhoneNumber(String string) {
-		// TODO Write an implementation for this method declaration
-		return null;
+		string = string.replaceAll("[()\\s.-]", "");
+		if (!string.matches("^[0-9]+$")) {
+			throw new IllegalArgumentException("Phone numbers need to be numeric");
+		} else if (string.length() > 11)
+			throw new IllegalArgumentException("Phone numbers can't be longer than 11");
+		return string;
 	}
 
 	/**
@@ -163,8 +209,19 @@ public class EvaluationService {
 	 * @return
 	 */
 	public Map<String, Integer> wordCount(String string) {
-		// TODO Write an implementation for this method declaration
-		return null;
+		Map<String, Integer> output = new HashMap<String, Integer>();
+		String[] input = string.split("[-\\s,]+");
+
+		for (int i = 0; i < input.length; i++) {
+			String key = input[i];
+			// never see this character, let's add to the pool to count
+			if (!output.containsKey(key)) {
+				output.put(key, 1);
+			} else { // we already saw this character and it's in the pool for counting
+				output.put(key, output.get(key) + 1);
+			}
+		}
+		return output;
 	}
 
 	/**
@@ -206,8 +263,24 @@ public class EvaluationService {
 		private List<T> sortedList;
 
 		public int indexOf(T t) {
-			// TODO Write an implementation for this method declaration
-			return 0;
+			int low = 0;
+			int high = sortedList.size() - 1;
+			int index = Integer.MAX_VALUE;
+
+			while (low <= high) {
+				int mid = (low + high) / 2;
+				if (t.equals(sortedList.get(mid))) {
+					index = sortedList.indexOf(t);
+					break;
+				}
+				// value is not at the middle
+				if (sortedList.indexOf(t) < mid) {
+					high = mid - 1;
+				} else if (sortedList.indexOf(t) > mid) {
+					low = mid + 1;
+				}
+			}
+			return index;
 		}
 
 		public BinarySearch(List<T> sortedList) {
@@ -225,7 +298,6 @@ public class EvaluationService {
 
 	}
 
-
 	/**
 	 * 8. An Armstrong number is a number that is the sum of its own digits each
 	 * raised to the power of the number of digits.
@@ -242,7 +314,16 @@ public class EvaluationService {
 	 * @return
 	 */
 	public boolean isArmstrongNumber(int input) {
-		// TODO Write an implementation for this method declaration
+		int total = 0;
+		String str = String.valueOf(input);
+		String[] inputArr = str.split("");
+
+		for (int i = 0; i < inputArr.length; i++) {
+			total += Math.pow(Double.parseDouble(inputArr[i]), inputArr.length);
+		}
+
+		if (total == input)
+			return true;
 		return false;
 	}
 
@@ -260,11 +341,24 @@ public class EvaluationService {
 	 * @return
 	 */
 	public boolean isPangram(String string) {
-		// TODO Write an implementation for this method declaration
+		if (string == null)
+			return false;
+		string = string.toUpperCase();
+		Set<String> alphabet = new HashSet<String>(Arrays.asList("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K",
+				"L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"));
+		string = string.replaceAll("\\s", "");
+		String[] inputArr = string.split("");
+
+		for (int i = 0; i < inputArr.length; i++) {
+			if (alphabet.contains(inputArr[i])) {
+				alphabet.remove(inputArr[i]);
+			}
+		}
+		if (alphabet.isEmpty())
+			return true;
 		return false;
 	}
 
-	
 	/**
 	 * 10. Create an implementation of the rotational cipher, also sometimes called
 	 * the Caesar cipher.
@@ -300,12 +394,36 @@ public class EvaluationService {
 		}
 
 		public String rotate(String string) {
-			// TODO Write an implementation for this method declaration
-			return null;
-		}
+			StringBuilder sb = new StringBuilder();
+			String[] inputString = string.split("");
+			int shiftAmmount = 0;
+			for (int i = 0; i < inputString.length; i++) {
+				char c = inputString[i].charAt(0);
+				if ((int) c >= 65 && (int) c <= 90) { // uppercase
+					shiftAmmount = c + key;
+					if (shiftAmmount > 90) {
+						shiftAmmount = shiftAmmount - 90;
+						sb.append((char) ('A' + shiftAmmount - 1));
+					} else {
+						sb.append((char) shiftAmmount);
+					}
+				} else if ((int) c >= 97 && (int) c <= 122) { // lowercase
+					shiftAmmount = c + key;
+					if (shiftAmmount > 122) {
+						shiftAmmount = shiftAmmount - 122;
+						sb.append((char) ('a' + shiftAmmount - 1));
+					} else {
+						sb.append((char) shiftAmmount);
+					}
 
+				} else {
+					sb.append(c);
+				}
+
+			}
+			return sb.toString();
+		}
 	}
-	
 
 	/**
 	 * 11 & 12. Create an implementation of the atbash cipher, an ancient encryption
@@ -332,6 +450,25 @@ public class EvaluationService {
 	 *
 	 */
 	static class AtbashCipher {
+		// map for encoding and decoding, contains mapping of characters
+		private static HashMap<Character, Character> map() {
+			HashMap<Character, Character> map = new HashMap<>();
+			char c = 'a';
+
+			for (char x = 'z'; x >= 'a'; x--) {
+				map.put(c++, x);
+			}
+			return map;
+		}
+
+		private static boolean isInteger(char c) {
+			try {
+				Integer.parseInt(Character.toString(c));
+				return true;
+			} catch (NumberFormatException nfe) {
+				return false;
+			}
+		}
 
 		/**
 		 * Question 11
@@ -340,8 +477,26 @@ public class EvaluationService {
 		 * @return
 		 */
 		public static String encode(String string) {
-			// TODO Write an implementation for this method declaration
-			return null;
+			string = string.toLowerCase().replaceAll("[\\s,.+]", "");
+			String output = "";
+			int countChar = 0;
+
+			for (int i = 0; i < string.length(); i++) {
+				char c = string.charAt(i);
+
+				if (countChar != 0 && countChar % 5 == 0) {
+					output += " ";
+					countChar = 0;
+				}
+				if (isInteger(c)) {
+					output += c;
+					countChar++;
+				} else if (map().containsKey(c)) {
+					output += Character.toString(map().get(c));
+					countChar++;
+				}
+			}
+			return output;
 		}
 
 		/**
@@ -351,14 +506,26 @@ public class EvaluationService {
 		 * @return
 		 */
 		public static String decode(String string) {
-			// TODO Write an implementation for this method declaration
-			return null;
+			string = string.replaceAll("[\\s]", "");
+			String output = "";
+
+			for (int i = 0; i < string.length(); i++) {
+				char c = string.charAt(i);
+				if (isInteger(c))
+					output += c;
+				else if (map().containsKey(c)) {
+					output += Character.toString(map().get(c));
+				}
+
+			}
+			return output;
 		}
 	}
 
 	/**
-	 * 13. (Optional) The ISBN-10 verification process is used to validate book identification
-	 * numbers. These normally contain dashes and look like: 3-598-21508-8
+	 * 13. (Optional) The ISBN-10 verification process is used to validate book
+	 * identification numbers. These normally contain dashes and look like:
+	 * 3-598-21508-8
 	 * 
 	 * ISBN The ISBN-10 format is 9 digits (0 to 9) plus one check character (either
 	 * a digit or an X only). In the case the check character is an X, this
@@ -379,10 +546,26 @@ public class EvaluationService {
 	 * @return
 	 */
 	public boolean isValidIsbn(String string) {
-		// TODO Write an implementation for this method declaration
+		string = string.replaceAll("-", "");
+		if (string.length() > 10)
+			return false;
+		if (!Character.toString(string.charAt(string.length() - 1)).matches("^[0-9]+$")
+				&& string.charAt(string.length() - 1) != 'X')
+			return false;
+		int count = 10;
+		int total = 0;
+		for (int i = 0; i < string.length() - 1; i++) {
+			total += Character.getNumericValue(string.charAt(i)) * count;
+			count--;
+		}
+		if ((string.charAt(string.length() - 1)) == 'X')
+			total += 10;
+		else
+			total += Character.getNumericValue(string.charAt(string.length() - 1));
+		if (total % 11 == 0)
+			return true;
 		return false;
 	}
-
 
 	/**
 	 * 14. (Optional) Calculate the moment when someone has lived for 10^9 seconds.
@@ -393,14 +576,12 @@ public class EvaluationService {
 	 * @return
 	 */
 	public Temporal getGigasecondDate(Temporal given) {
-		// TODO Write an implementation for this method declaration
 		return null;
 	}
 
-	
 	/**
-	 * 15. (Optional) Parse and evaluate simple math word problems returning the answer as an
-	 * integer.
+	 * 15. (Optional) Parse and evaluate simple math word problems returning the
+	 * answer as an integer.
 	 * 
 	 * Add two numbers together.
 	 * 
